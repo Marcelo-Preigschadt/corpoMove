@@ -1,6 +1,6 @@
 # corpoMove — Você no comando
 
-Jogo para a Feira das Profissões: uma webcam acompanha a mão do visitante, que pilota uma nave e dispara fazendo uma pinça entre polegar e indicador. Partidas de 60, 90 ou 120 segundos, três vidas, meteoros, cristais, efeitos sonoros e ranking por duração/dificuldade.
+Jogo para a Feira das Profissões: uma webcam acompanha a mão do visitante, que pilota uma nave e dispara fazendo uma pinça entre polegar e indicador. Partidas de 60, 90 ou 120 segundos, três vidas, esquadrões inimigos, nave-mãe, combos, melhorias de arma, escudo, reparos e efeitos sonoros e ranking por duração/dificuldade.
 
 ## Publicar no GitHub Pages
 
@@ -23,21 +23,36 @@ Não precisa de Node, npm, framework, chave de API, banco de dados ou backend pa
 5. Em **Ajustes**, selecione a webcam USB e clique em **Aplicar câmera** se houver outra câmera no computador. Feche os ajustes.
 6. Clique em **Tela cheia** ou use F11 no navegador. Para projetar o jogo e manter o controle no mesmo computador, use a opção de duplicar as telas no sistema operacional.
 7. Mostre **uma mão** à câmera. O quadro mostra os pontos rastreados. Uma mão aberta por 2 segundos inicia a contagem regressiva; o botão **Iniciar missão** também inicia quando há uma mão detectada.
-8. Mova a mão para os lados e para cima/baixo. A palma controla a nave. Una polegar e indicador para disparar; mantendo a pinça, os disparos se repetem.
+8. A posição inicial da mão vira o centro do controle. A área necessária é aproximadamente um terço da imagem: não é preciso chegar perto das bordas da webcam. O retângulo tracejado mostra a área de controle. Mova a mão para os lados e para cima/baixo. A palma controla a nave. Una polegar e indicador para disparar; mantendo a pinça, os disparos se repetem.
 9. Se estiver difícil alcançar as bordas, use **Ajustes → Calibrar área de movimento**, a partir da tela inicial. Mantenha a mão no limite confortável superior esquerdo por 1 segundo; depois, no inferior direito. A posição precisa permanecer estável. A calibração vale até recarregar a página.
 10. Para crianças menores ou visitantes com dificuldade no gesto, escolha **Disparo automático** nos ajustes.
 
 A distância depende da webcam: comece com aproximadamente 1 metro e ajuste até a mão aparecer inteira no quadro. Ilumine pela frente e mantenha a mão afastada de outras pessoas. Se a mão desaparecer por mais de 0,6 segundo, a missão pausa; depois de recuperar o rastreamento, há nova contagem regressiva. Tempo e pontuação ficam congelados enquanto a missão está pausada.
 
+## Missão e melhorias
+
+- Primeiro quarto do tempo: asteroides e pequenos esquadrões.
+- Segundo setor: formações com interceptadores e naves que disparam contra o jogador.
+- Ao atingir 62% do tempo: chegada da nave-mãe, com barra de energia, movimento lateral, disparos em leque e ataques direcionados.
+- A destruição da nave-mãe encerra a missão com vitória. O tempo máximo e as três vidas continuam limitando o voo.
+- **W**: melhora a arma para laser triplo e depois quíntuplo, por 12 segundos.
+- **S**: escudo por 12 segundos, que absorve um impacto.
+- **+**: recupera uma vida, até o máximo de três.
+- **◆**: cristal de pontos.
+- Destruições consecutivas em até 3,5 segundos mantêm o combo. A cada quatro, o multiplicador aumenta, até ×5. Perder uma vida interrompe o combo.
+
 ## Pontuação
 
 - Meteoro destruído: **100 pontos**. Meteoros grandes precisam de dois impactos.
+- Interceptador: **200 pontos**; nave armada: **350 pontos**.
+- Nave-mãe: **2.500 pontos**.
+- Destruições recebem o multiplicador de combo atual.
 - Meteoro que passa sem atingir a nave: **10 pontos**.
 - Cristal verde coletado: **150 pontos**.
 - Colisão: perde uma vida e recebe 1,5 segundo de proteção.
 - A partida termina ao acabar o tempo ou as três vidas.
 
-O ranking pertence ao navegador deste computador, usa `localStorage` e separa duração/dificuldade. Não é compartilhado entre máquinas. O modo com mouse não entra no ranking da webcam. Pinça e disparo automático usam o mesmo ranking: para uma disputa comparável, mantenha o mesmo modo de disparo durante o evento. Se o armazenamento estiver bloqueado, o jogo informa que o ranking ficará somente na sessão.
+Esta edição usa um ranking novo, pois a pontuação mudou; os dados da primeira edição não são apagados. O ranking pertence ao navegador deste computador, usa `localStorage` e separa duração/dificuldade. Não é compartilhado entre máquinas. O modo com mouse não entra no ranking da webcam. Pinça e disparo automático usam o mesmo ranking: para uma disputa comparável, mantenha o mesmo modo de disparo durante o evento. Se o armazenamento estiver bloqueado, o jogo informa que o ranking ficará somente na sessão.
 
 ## Operação da feira
 
@@ -80,7 +95,7 @@ package.json                 comando de teste, sem dependências
 .nojekyll                    evita processamento Jekyll
 ```
 
-O navegador processa os quadros localmente em um Web Worker, sem transmitir vídeo para servidor. Apenas uma inferência fica em andamento; o envio é limitado a 20 quadros por segundo para preservar a renderização. O desempenho real depende da máquina e da webcam. A posição usa média dos pontos da palma, mapeamento espelhado e suavização exponencial. A pinça usa distância proporcional à largura da palma, correção de proporção da imagem e histerese.
+O navegador processa os quadros localmente em um Web Worker, sem transmitir vídeo para servidor. Apenas uma inferência fica em andamento; o envio é limitado a aproximadamente 30 quadros por segundo para preservar a renderização. O desempenho real depende da máquina e da webcam. A posição usa média dos pontos da palma, mapeamento espelhado, centralização automática e filtragem adaptativa com suavização mais rápida da nave. A pinça usa distância proporcional à largura da palma, correção de proporção da imagem e histerese.
 
 ## Desenvolvimento e testes
 

@@ -38,3 +38,34 @@ test('Cristal coleta e meteoro desviado geram pontuação',()=>{
   m.meteors=[{x:50,y:H+80,r:20,speed:0,vx:0,angle:0,spin:0,hp:1,seed:0}];
   m.update(.01,{...m.ship},false);assert.equal(m.score,160);assert.equal(m.dodged,1);assert.equal(m.pickups.length,0);
 });
+
+test('Área confortável permite alcançar os lados sem sair do quadro da câmera',async()=>{
+ const {comfortableBounds}=await import('../mechanics.js');const hand={x:.5,y:.5};const b=comfortableBounds(hand);
+ assert.ok(b.left>=.2&&b.right<=.8);
+ assert.equal(mapHand({x:.33,y:.5},b,true,1.1).x,W-45);
+ assert.equal(mapHand({x:.67,y:.5},b,true,1.1).x,45);
+});
+test('Filtro reduz tremor e acompanha deslocamento rápido',async()=>{
+ const {HandSmoother}=await import('../mechanics.js');const f=new HandSmoother();f.filter({x:640,y:400},0);
+ const jitter=f.filter({x:645,y:400},.033);assert.ok(jitter.x>640&&jitter.x<645);
+ const fast=f.filter({x:950,y:400},.066);assert.ok(fast.x>900);
+});
+test('Arma, escudo e reparo são coletados e afetam a missão',()=>{
+ const m=new Mission();m.spawn=10;m.drop=10;m.enemySpawn=10;m.lives=2;
+ m.pickups=['weapon','shield','repair'].map(type=>({...m.ship,type}));m.update(.01,{...m.ship},false);
+ assert.equal(m.weapon,2);assert.equal(m.shield,12);assert.equal(m.lives,3);
+ m.invulnerable=0;assert.equal(m.damage(),true);assert.equal(m.lives,3);assert.equal(m.shield,0);
+});
+test('Combo amplia pontuação e expira',()=>{
+ const m=new Mission();for(let i=0;i<4;i++)m.award(100,100,100);
+ assert.equal(m.multiplier,2);assert.equal(m.score,500);
+ m.comboTime=.01;m.spawn=10;m.drop=10;m.enemySpawn=10;m.update(.02,{...m.ship},false);assert.equal(m.combo,0);
+});
+test('Chefe aparece no setor final, ataca e encerra a missão ao ser destruído',()=>{
+ const m=new Mission(60,'normal',()=>.5);m.spawn=100;m.drop=100;m.enemySpawn=100;m.elapsed=38;
+ m.update(.02,{...m.ship},false);assert.ok(m.boss);assert.equal(m.wave,3);
+ m.boss.y=150;m.boss.fire=0;m.update(.02,{...m.ship},false);assert.ok(m.hostile.length>0);
+ const hp=m.boss.hp,x=m.boss.x,y=m.boss.y;
+ m.bullets=Array.from({length:hp},()=>({x,y:y+8.5,vx:0}));m.update(.01,{...m.ship},false);
+ assert.equal(m.bossDefeated,true);assert.equal(m.finished,true);assert.ok(m.score>=2500);
+});
