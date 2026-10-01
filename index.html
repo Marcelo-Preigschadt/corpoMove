@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#070b18">
+  <meta name="description" content="Pilote uma nave com a mão. Uma experiência de programação e visão computacional para a Feira das Profissões.">
+  <title>corpoMove — Você no comando</title>
+  <link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="corpoMove início"><span class="brand-icon">↗</span>corpo<span>Move</span></a>
+    <span class="event-label">FEIRA DAS PROFISSÕES <span>•</span> COMPUTAÇÃO</span>
+    <nav aria-label="Controles do laboratório"><button id="sound" title="Ativar ou desativar som" aria-label="Ativar som">Som: desligado</button><button id="settings">Ajustes</button><button id="fullscreen">Tela cheia ↗</button></nav>
+  </header>
+  <main id="arena" class="arena">
+    <canvas id="game" aria-label="Jogo espacial controlado por movimentos da mão"></canvas>
+    <div class="hud" id="hud" hidden><div><small>PONTUAÇÃO</small><strong id="score">00000</strong></div><div class="hud-time"><small>TEMPO</small><strong id="time">60</strong></div><div class="hud-lives"><small>ESCUDO</small><strong id="lives">● ● ●</strong></div></div>
+    <section class="intro panel" id="intro">
+      <div class="eyebrow"><span class="live-dot"></span> SEU MOVIMENTO. SEU CONTROLE.</div>
+      <h1>O próximo comando<br>é <span>seu.</span></h1>
+      <p class="lead">Pilote uma nave com a mão.<br>Desvie dos meteoros. Conquiste o espaço.</p>
+      <div class="steps"><div><b>01</b><span>Levante<br><strong>uma mão</strong></span></div><div><b>02</b><span>Mova a mão<br><strong>para pilotar</strong></span></div><div><b>03</b><span>Una polegar e indicador<br><strong>para disparar</strong></span></div></div>
+      <div class="actions"><button id="connect" class="primary">Ativar webcam <span>→</span></button><button id="start" class="primary" hidden>Iniciar missão →</button><button id="demo" class="secondary">Testar com mouse</button></div>
+      <p id="status" class="status" role="status" aria-live="polite">60 segundos • 3 vidas • Você no comando</p>
+      <div class="hold-start" id="holdWrap" hidden><span id="holdLabel">Mantenha a mão aberta para começar</span><div><i id="holdBar"></i></div></div>
+    </section>
+    <aside class="leaderboard" id="leaderboard"><div class="board-title"><span>★</span> MELHORES PILOTOS</div><ol id="ranking"></ol><p class="board-note">Ranking deste computador</p></aside>
+    <aside class="camera" id="camera" hidden><div class="camera-view"><video id="video" autoplay playsinline muted></video><canvas id="landmarks"></canvas></div><div class="camera-caption"><span class="live-dot" id="trackingDot"></span><span id="tracking">Procurando sua mão</span></div></aside>
+    <div id="notice" class="notice" hidden role="status"></div>
+    <section id="countdown" class="center-card" hidden><small>PREPARE SUA MÃO</small><strong id="count">3</strong><p>A nave acompanha você</p></section>
+    <section id="pause" class="center-card" hidden><span class="eyebrow">MISSÃO EM PAUSA</span><h2 id="pauseTitle">Onde está sua mão?</h2><p id="pauseText">Mostre a mão para a webcam.<br>A partida continua quando o controle voltar.</p><button id="resume" class="primary" hidden>Continuar →</button><button id="quit" class="secondary">Voltar ao início</button></section>
+    <section id="calibration" class="center-card" hidden><span class="eyebrow">CALIBRAÇÃO DO MOVIMENTO</span><h2 id="calTitle">Mão no alto à esquerda</h2><p id="calText">Posicione a mão no limite confortável do seu movimento e mantenha por 1 segundo.</p><progress id="calProgress" value="0" max="1"></progress><button id="cancelCal" class="secondary">Cancelar</button></section>
+    <section id="result" class="center-card result" hidden><span class="eyebrow">MISSÃO CONCLUÍDA</span><h2 id="resultTitle">Você no comando.</h2><strong class="final-score" id="finalScore">0</strong><span class="score-label">PONTOS</span><p id="resultDetail"></p><form id="scoreForm"><label for="nickname">Seu nome no ranking</label><div class="name-row"><input id="nickname" maxlength="18" placeholder="Apelido do piloto" autocomplete="off"><button class="primary" type="submit">Salvar</button></div></form><p id="saveMessage" role="status"></p><button id="again" class="secondary">Próximo piloto →</button><small class="auto-return">Retorno ao início em <span id="returnTime">30</span>s</small></section>
+    <footer class="arena-footer"><span>VISÃO COMPUTACIONAL <b>×</b> PROGRAMAÇÃO <b>×</b> VOCÊ</span><span id="hint">Use seu corpo. Descubra o que a Computação pode criar.</span></footer>
+  </main>
+  <dialog id="settingsDialog"><form method="dialog"><div class="dialog-head"><h2>Ajustes do laboratório</h2><button aria-label="Fechar ajustes">✕</button></div></form><div class="setting"><label for="cameraSelect">Webcam</label><select id="cameraSelect"><option value="">Câmera padrão</option></select><button id="changeCamera">Aplicar câmera</button></div><div class="setting"><label for="duration">Duração da missão</label><select id="duration"><option value="60">60 segundos</option><option value="90">90 segundos</option><option value="120">120 segundos</option></select></div><div class="setting"><label for="difficulty">Dificuldade</label><select id="difficulty"><option value="easy">Explorador — fácil</option><option value="normal" selected>Piloto — normal</option><option value="hard">Comandante — difícil</option></select></div><div class="setting"><label for="sensitivity">Sensibilidade do movimento</label><input id="sensitivity" type="range" min="0.7" max="1.5" step="0.1" value="1"><output id="sensitivityValue">1.0×</output></div><div class="setting"><label for="autoFire">Disparo</label><select id="autoFire"><option value="pinch">Pinça: polegar + indicador</option><option value="auto">Automático — somente pilotar</option></select></div><div class="setting check"><label><input id="mirror" type="checkbox" checked> Movimento espelhado, como um espelho</label></div><div class="setting"><button id="calibrate">Calibrar área de movimento</button><button id="stopCamera">Desligar webcam</button></div><details><summary>Operação durante a feira</summary><p>F: tela cheia · P: pausar/continuar · Enter: iniciar · Escape: pausar. No teste: mouse para mover, clique ou espaço para disparar. O ranking separa duração e dificuldade; testes com mouse não entram no ranking da webcam.</p><p>Ilumine a mão pela frente. Posicione a webcam perto da projeção, apontada para o visitante. Mostre apenas uma mão.</p><button id="clearRanking" class="danger">Apagar ranking deste computador</button><p id="storageStatus"></p></details></dialog>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
